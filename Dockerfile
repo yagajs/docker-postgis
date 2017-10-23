@@ -20,5 +20,5 @@ RUN set -x \
     \
     && curl -L http://postgis.net/stuff/postgis-$POSTGIS_VERSION.tar.gz | tar xz -C /tmp \
     && cd /tmp/postgis-$POSTGIS_VERSION/ \
-    && ./configure && make && make install && ldconfig && make comments-install \
+    && ./configure && make && make install && ldconfig /usr/local/lib/ /usr/local/lib/postgres && make comments-install \
     && apk del .fetch-deps .build-deps .build-deps-testing
