@@ -1,4 +1,4 @@
-FROM postgres:10
+FROM postgres:10-alpine
 
 ARG POSTGIS_VERSION=2.4.0
 ARG POSTGRES_MAJOR_VERSION=10
@@ -6,10 +6,13 @@ ARG POSTGRES_MAJOR_VERSION=10
 MAINTAINER Arne Schubert, atd.schubert@gmail.com
 
 RUN set -x \
-    && apt-get update \
-    && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
-      curl build-essential libxml2-dev libgdal-dev libproj-dev libjson-c-dev xsltproc docbook-xsl docbook-mathml \
-      postgresql-server-dev-$POSTGRES_MAJOR_VERSION  \
+    && apk add --no-cache --virtual .fetch-deps \
+      ca-certificates curl openssl tar \
+    && apk add --no-cache --virtual .build-deps \
+      g++ json-c-dev libtool libxml2-dev make perl coreutils \
+    && apk add --no-cache --virtual .build-deps-testing \
+      --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing \
+      gdal-dev proj4-dev \
     \
     && curl -L http://geos.osgeo.org/snapshots/geos-`date -d yesterday +%Y%m%d`.tar.bz2 | tar xj -C /tmp \
     && cd /tmp/geos-`date -d yesterday +%Y%m%d` \
@@ -17,7 +20,5 @@ RUN set -x \
     \
     && curl -L http://postgis.net/stuff/postgis-$POSTGIS_VERSION.tar.gz | tar xz -C /tmp \
     && cd /tmp/postgis-$POSTGIS_VERSION/ \
-    && ./configure && make && ldconfig && make install && make comments-install \
-    \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /tmp/*
+    && ./configure && make && make install && ldconfig && make comments-install \
+    && apk del .fetch-deps .build-deps .build-deps-testing
