@@ -17,7 +17,7 @@ RUN set -x \
     \
     && curl -L http://postgis.net/stuff/postgis-$POSTGIS_VERSION.tar.gz | tar xz -C /tmp \
     && cd /tmp/postgis-$POSTGIS_VERSION/ \
-    && ./configure && make && ldconfig && make install && make comments-install \
+    && ./configure && make && make install && ldconfig && make comments-install \
     \
     && rm -rf /var/lib/apt/lists/* \
     && rm -rf /tmp/*
